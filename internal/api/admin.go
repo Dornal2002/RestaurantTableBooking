@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"project/internal/app/admin"
@@ -12,20 +13,31 @@ func SignUpHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *h
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		sgnUpReq := dto.AdminSignUpRequest{}
 
-		err := json.NewDecoder(r.Body).Decode(&sgnUpReq)
+		var req dto.AdminSignUpRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
-			log.Fatal(err)
-			w.Write([]byte(err.Error()))
+			w.WriteHeader(http.StatusBadRequest)
+			log.Print("error while decoding sign up data from json into struct !!")
+			return
 		}
-		err = adminSvc.AdminSignup(ctx, sgnUpReq)
+
+		err = req.ValidateAdmin()
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			response := fmt.Sprintf("\nCAUTION : %v", err)
+			w.Write([]byte(response))
+			return
+		}
+
+		err = adminSvc.AdminSignup(ctx, req)
 		if err != nil {
 
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(err.Error()))
 			return
 		}
+		fmt.Fprint(w, "Admin created successfully")
 		w.WriteHeader(http.StatusAccepted)
 	}
 }
@@ -38,8 +50,16 @@ func LoginHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *ht
 
 		err := json.NewDecoder(r.Body).Decode(&loginReq)
 		if err != nil {
-			log.Fatal(err)
-			w.Write([]byte(err.Error()))
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprint(w, "Error in decoding")
+			return
+		}
+
+		err = loginReq.Validate()
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Plz, Provide Valid Credentials !!"))
+			return
 		}
 		err = adminSvc.AdminLogin(ctx, loginReq)
 		if err != nil {
@@ -48,6 +68,7 @@ func LoginHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *ht
 			w.Write([]byte(err.Error()))
 			return
 		}
+		fmt.Fprint(w, "login successful")
 		w.WriteHeader(http.StatusAccepted)
 	}
 }

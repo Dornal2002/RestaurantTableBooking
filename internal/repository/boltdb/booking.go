@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"project/internal/app/pkg/dto"
 	"project/internal/repository"
 	"strconv"
@@ -22,32 +23,50 @@ func NewBookingRepo(db1 *sql.DB) repository.BookingStorer {
 
 func (bs *bookingStore) InsertBookingDetails(bookDetails dto.BookingDetails) (repository.BookingTableDetails, error) {
 	b1 := repository.BookingTableDetails{}
-
-	query := `INSERT INTO table_bookings (customer_name, contact_no,date,slot_id,table_id) VALUES (?, ?, ?, ?, ?)`
-	statement, err := bs.DB.Prepare(query)
-
+	var count int
+	query := fmt.Sprintf(`SELECT COUNT(*) FROM table_bookings WHERE slot_id = %d AND table_id = %d`, bookDetails.SlotId, bookDetails.TableId)
+	rows, err := bs.BaseRepository.DB.Query(query)
 	if err != nil {
-		fmt.Println("Error while creating table", err.Error())
+		log.Printf("Error querying database: %v", err)
 		return b1, err
 	}
-	res, err := statement.Exec(bookDetails.CustomerName, bookDetails.ContactNo, bookDetails.Date, bookDetails.SlotId, bookDetails.TableId)
-	if err != nil {
-		fmt.Println("Error occured in inserting data")
-		return b1, err
+	for rows.Next() {
+		err := rows.Scan(&count)
+		if err != nil {
+			log.Printf("Error querying database: %v", err)
+			return b1, err
+		}
 	}
-	b1.BookingID, err = res.LastInsertId()
-	b1.CustomerName = bookDetails.CustomerName
-	b1.ContactNo = bookDetails.ContactNo
-	b1.Date = bookDetails.Date
-	b1.SlotId = bookDetails.SlotId
-	b1.TableId = bookDetails.TableId
+	if count == 0 {
+		query := `INSERT INTO table_bookings (customer_name, contact_no,date,slot_id,table_id) VALUES (?, ?, ?, ?, ?)`
+		statement, err := bs.DB.Prepare(query)
 
-	if err != nil {
-		fmt.Println("error occured in fetching data")
-		return b1, err
+		if err != nil {
+			fmt.Println("Error while creating table", err.Error())
+			return b1, err
+		}
+		res, err := statement.Exec(bookDetails.CustomerName, bookDetails.ContactNo, bookDetails.Date, bookDetails.SlotId, bookDetails.TableId)
+		if err != nil {
+			fmt.Println("Error occured in inserting data")
+			return b1, err
+		}
+		// fmt.Println(res)
+		b1.BookingID, err = res.LastInsertId()
+		b1.CustomerName = bookDetails.CustomerName
+		b1.ContactNo = bookDetails.ContactNo
+		b1.Date = bookDetails.Date
+		b1.SlotId = bookDetails.SlotId
+		b1.TableId = bookDetails.TableId
+
+		if err != nil {
+			fmt.Println("error occured in fetching data")
+			return b1, err
+		}
+
+		fmt.Println("Table Booked Successfully")
+	} else {
+		fmt.Println("Slot is Not Available")
 	}
-
-	fmt.Println("Table Booked Successfully")
 
 	return b1, nil
 }

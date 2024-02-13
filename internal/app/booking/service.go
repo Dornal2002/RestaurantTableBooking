@@ -9,6 +9,8 @@ import (
 	"project/internal/repository"
 )
 
+// var db sql.DB
+
 type service struct {
 	BookingRepo repository.BookingStorer
 }
@@ -24,7 +26,7 @@ func NewService(bookingRepo repository.BookingStorer) Service {
 }
 func (bs *service) CreateUserBooking(user dto.BookingDetails) (dto.BookingDetails, error) {
 	bkd := dto.BookingDetails{}
-	log.Println(user)
+	// log.Println(user)
 	if user.CustomerName == "" || len(user.ContactNo) != 10 {
 		return bkd, errors.New("invalid user data")
 	}
@@ -38,14 +40,8 @@ func (bs *service) CreateUserBooking(user dto.BookingDetails) (dto.BookingDetail
 	return bkd, nil
 }
 
-// return repository.InitializeDatabse()
-
 func (bs *service) GetSlots(ctx context.Context) ([]dto.SlotResponse, error) {
-
-	//here we are getting a list of slots with associcated tables
 	book := dto.BookingDetails{}
-	fmt.Println(book)
-
 	slot, err := bs.BookingRepo.GetSlotDetails(ctx, book)
 	fmt.Println(slot)
 	if err != nil {
@@ -53,9 +49,5 @@ func (bs *service) GetSlots(ctx context.Context) ([]dto.SlotResponse, error) {
 		return slot, err
 	}
 	return slot, nil
-
-	//TODO: make a call to booking table SELECT * FROM bookings WHERE restaurantID=?, Date=?
-	//Here you will get all the booking for a particular date and a particular restauratn
-	//Now remove these values, from the above list of slots
 
 }

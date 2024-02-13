@@ -2,7 +2,6 @@ package admin
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"project/internal/app/pkg/dto"
@@ -27,11 +26,6 @@ func NewService(AdminRepo repository.AdminStorer) AdminService {
 	}
 }
 func (as *service) AdminSignup(ctx context.Context, user dto.AdminSignUpRequest) error {
-	valUser := validateUser(user)
-	if !valUser {
-		// fmt.Println("enter valid details")
-		return errors.New("enter valid details")
-	}
 	user.Password = HashPassword(user.Password)
 	err := as.AdminRepo.AdminSignup(ctx, user)
 	if err != nil {
@@ -44,12 +38,6 @@ func (as *service) AdminSignup(ctx context.Context, user dto.AdminSignUpRequest)
 }
 
 func (as *service) AdminLogin(ctx context.Context, user dto.AdminLoginRequest) error {
-
-	valEmailPassword := isValidEmail(user.Email) && isValidPassword(user.Password)
-	if !valEmailPassword {
-		return errors.New("enter valid email and password")
-	}
-	// user.Password = HashPassword(user.Password)
 	err := as.AdminRepo.AdminLogin(ctx, user)
 	if err != nil {
 		return err

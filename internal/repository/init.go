@@ -39,7 +39,7 @@ func InitializeDatabse() (*sql.DB, error) {
 	statement.Exec()
 	seedTableData()
 
-	query = "CREATE TABLE IF NOT EXISTS admin_data (admin_id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT,contact_no TEXT ,email TEXT,password TEXT,access_token TEXT)"
+	query = "CREATE TABLE IF NOT EXISTS admin_data (admin_id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT,contact_no TEXT ,email TEXT,password TEXT)"
 
 	statement, err = db.Prepare(query)
 

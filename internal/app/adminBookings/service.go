@@ -28,9 +28,6 @@ func NewService(AdminBookingRepo repository.AdminBookingsStorer) AdminBookingSer
 
 func (at *service) AdminAssignTable(admin dto.AdminAssignTable) (dto.AdminAssignTable, error) {
 	bkd := dto.AdminAssignTable{}
-	if admin.CustomerName == "" || admin.ContactNo == "" {
-		return bkd, errors.New("invalid user data")
-	}
 	fmt.Println(admin)
 	_, err := at.AdminBookingRepo.AdminAssignTable(admin)
 	if err != nil {

@@ -23,13 +23,13 @@ func NewAdminRepo(db1 *sql.DB) repository.AdminStorer {
 
 func (as *adminStore) AdminSignup(ctx context.Context, user dto.AdminSignUpRequest) error {
 
-	query := "INSERT INTO admin_data (name,contact_no,email,password,access_token) VALUES(?,?,?,?,?)"
+	query := "INSERT INTO admin_data (name,contact_no,email,password) VALUES(?,?,?,?)"
 	statement, err := as.BaseRepository.DB.Prepare(query)
 	if err != nil {
 		fmt.Println("error in inserting: " + err.Error())
 		return err
 	}
-	_, err = statement.Exec(user.Name, user.ContactNo, user.Email, user.Password, user.AccessToken)
+	_, err = statement.Exec(user.Name, user.ContactNo, user.Email, user.Password)
 	if err != nil {
 		fmt.Println("error occured in executing insert query: " + err.Error())
 		return err
@@ -48,19 +48,13 @@ func (as *adminStore) AdminLogin(ctx context.Context, user dto.AdminLoginRequest
 	}
 	var password string
 	for rows.Next() {
-		// food := repository.Food{}
 		rows.Scan(&password)
-		// foodList = append(foodList, food)
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(password), []byte(user.Password))
 	if err != nil {
 		return err
 	}
 	return nil
-	// if user.Password == password {
-	// 	return nil
-	// }
-	// return errors.New("password is incorrect")
 
 }
 

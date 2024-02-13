@@ -12,10 +12,9 @@ type AdminStorer interface {
 }
 
 type AdminPersonalDetails struct {
-	AdminID     int64
-	Name        string
-	ContactNo   string
-	Email       string
-	Password    string
-	AccessToken string
+	AdminID   int64
+	Name      string
+	ContactNo string
+	Email     string
+	Password  string
 }

@@ -19,8 +19,17 @@ func AssignTableHandler(ab adminBookings.AdminBookingService) func(w http.Respon
 
 		err := json.NewDecoder(r.Body).Decode(&assignReq)
 		if err != nil {
-			log.Fatal(err)
-			w.Write([]byte(err.Error()))
+			w.WriteHeader(http.StatusBadRequest)
+			log.Print("error !! while decoding Update data from json into struct !!")
+			return
+		}
+
+		err = assignReq.Validate()
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			response := fmt.Sprintf("\nCAUTION : %v", err)
+			w.Write([]byte(response))
+			return
 		}
 		_, err = ab.AdminAssignTable(assignReq)
 		if err != nil {
