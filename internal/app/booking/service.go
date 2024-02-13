@@ -1,10 +1,12 @@
 package booking
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"log"
 	"project/internal/app/pkg/dto"
-	"project/repository"
+	"project/internal/repository"
 )
 
 type service struct {
@@ -12,6 +14,7 @@ type service struct {
 }
 type Service interface {
 	CreateUserBooking(user dto.BookingDetails) (dto.BookingDetails, error)
+	GetSlots(ctx context.Context) ([]dto.SlotResponse, error)
 }
 
 func NewService(bookingRepo repository.BookingStorer) Service {
@@ -21,10 +24,10 @@ func NewService(bookingRepo repository.BookingStorer) Service {
 }
 func (bs *service) CreateUserBooking(user dto.BookingDetails) (dto.BookingDetails, error) {
 	bkd := dto.BookingDetails{}
-	if user.CustomerName == "" || user.ContactNo == "" || user.NoOfPeople <= 0 {
+	log.Println(user)
+	if user.CustomerName == "" || len(user.ContactNo) != 10 {
 		return bkd, errors.New("invalid user data")
 	}
-	fmt.Println(user)
 	bkdDB, err := bs.BookingRepo.InsertBookingDetails(user)
 	bkd = MapRepoObjectToDto(bkdDB) // converting db data into response
 	if err != nil {
@@ -33,5 +36,26 @@ func (bs *service) CreateUserBooking(user dto.BookingDetails) (dto.BookingDetail
 	}
 
 	return bkd, nil
-	// return repository.InitializeDatabse()
+}
+
+// return repository.InitializeDatabse()
+
+func (bs *service) GetSlots(ctx context.Context) ([]dto.SlotResponse, error) {
+
+	//here we are getting a list of slots with associcated tables
+	book := dto.BookingDetails{}
+	fmt.Println(book)
+
+	slot, err := bs.BookingRepo.GetSlotDetails(ctx, book)
+	fmt.Println(slot)
+	if err != nil {
+		log.Println("error in getslots service")
+		return slot, err
+	}
+	return slot, nil
+
+	//TODO: make a call to booking table SELECT * FROM bookings WHERE restaurantID=?, Date=?
+	//Here you will get all the booking for a particular date and a particular restauratn
+	//Now remove these values, from the above list of slots
+
 }

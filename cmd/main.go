@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"project/internal/api"
 	"project/internal/app"
-	"project/repository"
+	"project/internal/repository"
 )
 
 func main() {

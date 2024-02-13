@@ -10,14 +10,15 @@ import (
 func NewRouter(dep app.Dependencies) *mux.Router {
 	router := mux.NewRouter()
 
+	router.HandleFunc("/getslots", GetSlots(dep.BookingService)).Methods(http.MethodGet)
 	router.HandleFunc("/bookings", CreateBooking(dep.BookingService)).Methods(http.MethodPost)
-	router.HandleFunc("/admin/create", CreateAdminAccount(dep.AdminService)).Methods(http.MethodPost)
-	// router.HandleFunc("/admin/login", adminLogin).Methods(http.MethodPost)
-	// // router.HandleFunc("/admin/bookings", getAdminBookings).Methods("GET")
-	// // router.HandleFunc("/admin/tables", getTables).Methods("GET")
-	// router.HandleFunc("/admin/assign_table/{table_id}", assignTable).Methods(http.MethodPut)
-	// router.HandleFunc("/admin/cancel_table/{table_id}", cancelTable).Methods(http.MethodPut)
-	// router.HandleFunc("/admin/update_table/{table_id}", updateTable).Methods(http.MethodPut)
+	router.HandleFunc("/admin/create", SignUpHandler(dep.AdminService)).Methods(http.MethodPost)
+	router.HandleFunc("/admin/login", LoginHandler(dep.AdminService)).Methods(http.MethodPost)
+	router.HandleFunc("/admin/getuser", GetUsersHandler(dep.AdminService)).Methods(http.MethodGet)
+	router.HandleFunc("/admin/assign_table", AssignTableHandler(dep.AdminBookingService)).Methods(http.MethodPut)
+	router.HandleFunc("/admin/cancel_table/{table_id}", CancelTableHandler(dep.AdminBookingService)).Methods(http.MethodPut)
+	router.HandleFunc("/admin/update_table/{table_id}", UpdateTableHandler(dep.AdminBookingService)).Methods(http.MethodPut)
+	router.HandleFunc("/admin/get_details", GetBookingsHandler(dep.AdminBookingService)).Methods(http.MethodGet)
 
 	return router
 
