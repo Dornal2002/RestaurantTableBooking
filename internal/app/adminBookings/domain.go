@@ -17,24 +17,23 @@ func MapRepoObjectToDto(repoObj dto.AdminAssignTable) dto.AdminAssignTable {
 
 func MapRepoObjectToDto1(repoObj dto.CancelTable) dto.CancelTable {
 	return dto.CancelTable{
-		TableID: int(repoObj.TableID),
+		BookingID: int(repoObj.BookingID),
 	}
 }
 
 func MapRepoObjectToDto2(repoObj dto.UpdateTable) dto.UpdateTable {
 	return dto.UpdateTable{
 		BookingID: int(repoObj.BookingID),
-		TableID:   int(repoObj.TableID),
 	}
 }
 
-func MapRepoObjectToDto3(repoObj dto.GetTable) dto.GetTable {
-	return dto.GetTable{
+func MapRepoObjectToDto3(repoObj dto.BookingDetails) dto.BookingDetails {
+	return dto.BookingDetails{
 		BookingID:    int(repoObj.BookingID),
 		CustomerName: repoObj.CustomerName,
 		ContactNo:    repoObj.ContactNo,
 		Date:         repoObj.Date,
 		SlotId:       repoObj.SlotId,
-		TableID:      repoObj.TableID,
+		TableId:      repoObj.TableId,
 	}
 }

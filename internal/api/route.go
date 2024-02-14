@@ -16,8 +16,8 @@ func NewRouter(dep app.Dependencies) *mux.Router {
 	router.HandleFunc("/admin/login", LoginHandler(dep.AdminService)).Methods(http.MethodPost)
 	router.HandleFunc("/admin/getuser", GetUsersHandler(dep.AdminService)).Methods(http.MethodGet)
 	router.HandleFunc("/admin/assign_table", AssignTableHandler(dep.AdminBookingService)).Methods(http.MethodPut)
-	router.HandleFunc("/admin/cancel_table/{table_id}", CancelTableHandler(dep.AdminBookingService)).Methods(http.MethodPut)
-	router.HandleFunc("/admin/update_table/{table_id}", UpdateTableHandler(dep.AdminBookingService)).Methods(http.MethodPut)
+	router.HandleFunc("/admin/cancel_table", CancelTableHandler(dep.AdminBookingService)).Methods(http.MethodDelete)
+	router.HandleFunc("/admin/update_table/{booking_id}", UpdateTableHandler(dep.AdminBookingService)).Methods(http.MethodPut)
 	router.HandleFunc("/admin/get_details", GetBookingsHandler(dep.AdminBookingService)).Methods(http.MethodGet)
 
 	return router

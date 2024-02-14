@@ -45,48 +45,51 @@ func AssignTableHandler(ab adminBookings.AdminBookingService) func(w http.Respon
 
 func CancelTableHandler(ct adminBookings.AdminBookingService) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var id int
-		params := mux.Vars(r)
-		id, err := strconv.Atoi(params["table_id"])
 		req := dto.CancelTable{}
+		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
-			fmt.Println("error occured in parsing int in CancelTableHandler " + err.Error())
 			w.WriteHeader(http.StatusBadRequest)
+			log.Print("error !! wassignReqhile decoding Update data from json into struct !!")
 			return
 		}
-		resp, err := ct.AdminCancelTable(req, id)
+		_, err = ct.AdminCancelTable(req)
 
 		if err != nil {
 			fmt.Println("Error Occured at AdminCancelTable", err.Error())
 			return
 		}
 
-		json.NewEncoder(w).Encode(resp)
+		fmt.Fprint(w, "Table Cancelled Sucessfully")
 	}
 }
 
 func UpdateTableHandler(ut adminBookings.AdminBookingService) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		updateReq := dto.UpdateTable{}
-		var id int
-		params := mux.Vars(r)
-		id, err := strconv.Atoi(params["table_id"])
+		// ctx := r.Context()
 
+		params := mux.Vars(r)
+		id, err := strconv.ParseInt(params["booking_id"], 10, 64)
 		if err != nil {
-			fmt.Println("error occured in parsing int in UpdateTableHandler " + err.Error())
+			fmt.Println("Error in update table Handler: " + err.Error())
+			w.WriteHeader(404)
+			return
+		}
+		if id <= 0 {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-
 		json.NewDecoder(r.Body).Decode(&updateReq)
-		response, err := ut.AdminUpdateTable(updateReq, id)
+		log.Printf("%v %v ", updateReq, id)
+		updateReq.BookingID = int(id)
+		_, err = ut.AdminUpdateTable(updateReq, id)
 
 		if err != nil {
 			fmt.Println("Error in update table Handler: " + err.Error())
 			w.WriteHeader(404)
 			return
 		}
-		json.NewEncoder(w).Encode(response)
+		fmt.Fprint(w, "Booking updated successfully")
 	}
 }
 

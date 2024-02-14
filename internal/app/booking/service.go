@@ -2,7 +2,6 @@ package booking
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"project/internal/app/pkg/dto"
@@ -27,9 +26,6 @@ func NewService(bookingRepo repository.BookingStorer) Service {
 func (bs *service) CreateUserBooking(user dto.BookingDetails) (dto.BookingDetails, error) {
 	bkd := dto.BookingDetails{}
 	// log.Println(user)
-	if user.CustomerName == "" || len(user.ContactNo) != 10 {
-		return bkd, errors.New("invalid user data")
-	}
 	bkdDB, err := bs.BookingRepo.InsertBookingDetails(user)
 	bkd = MapRepoObjectToDto(bkdDB) // converting db data into response
 	if err != nil {

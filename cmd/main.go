@@ -18,9 +18,13 @@ func main() {
 		log.Fatal("Error Occured while Initializing database", err)
 		return
 	}
-	services := app.NewServices(database)
 
+	services := app.NewServices(database)
 	router := api.NewRouter(services)
 
-	http.ListenAndServe("localhost:8080", router)
+	err = http.ListenAndServe("localhost:8080", router)
+	if err != nil {
+		log.Fatal("Error Occured while Initializing database", err)
+		return
+	}
 }

@@ -15,15 +15,10 @@ type AdminAssignTable struct {
 }
 
 type CancelTable struct {
-	TableID int `json:"table_id"`
+	BookingID int `json:"booking_id"`
 }
 
 type UpdateTable struct {
-	BookingID int `json:"booking_id"`
-	TableID   int `json:"table_id"`
-}
-
-type GetTable struct {
 	BookingID    int    `json:"booking_id"`
 	CustomerName string `json:"customer_name"`
 	ContactNo    string `json:"contact_no"`

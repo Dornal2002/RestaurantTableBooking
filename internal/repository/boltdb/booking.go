@@ -123,7 +123,7 @@ func (bs *bookingStore) GetSlotDetails(ctx context.Context, booking dto.BookingD
 			// fmt.Println("=> ", bookTableIds, allTableIds)
 
 			result := removeCommon(allTableIds, bookTableIds)
-			fmt.Println("result ", result)
+			// fmt.Println("result ", result)
 			slots.TableId = result
 		}
 

@@ -11,9 +11,9 @@ import (
 
 type AdminBookingService interface {
 	AdminAssignTable(admin dto.AdminAssignTable) (dto.AdminAssignTable, error)
-	AdminCancelTable(admin dto.CancelTable, tableId int) (dto.CancelTable, error)
-	AdminUpdateTable(admin dto.UpdateTable, tableId int) (dto.UpdateTable, error)
-	AdminGetDetails(ctx context.Context) ([]dto.GetTable, error)
+	AdminCancelTable(admin dto.CancelTable) (dto.CancelTable, error)
+	AdminUpdateTable(admin dto.UpdateTable, bookingId int64) (dto.UpdateTable, error)
+	AdminGetDetails(ctx context.Context) ([]dto.BookingDetails, error)
 }
 
 type service struct {
@@ -38,13 +38,13 @@ func (at *service) AdminAssignTable(admin dto.AdminAssignTable) (dto.AdminAssign
 	return bkd, nil
 }
 
-func (at *service) AdminCancelTable(admin dto.CancelTable, tableId int) (dto.CancelTable, error) {
+func (at *service) AdminCancelTable(admin dto.CancelTable) (dto.CancelTable, error) {
 	act := dto.CancelTable{}
 
-	if admin.TableID <= 0 {
-		return act, errors.New("table id is invalid")
+	if admin.BookingID == 0 {
+		return act, errors.New("booking id is invalid")
 	}
-	_, err := at.AdminBookingRepo.AdminCancelTable(admin, tableId)
+	_, err := at.AdminBookingRepo.AdminCancelTable(admin)
 	// act = MapRepoObjectToDto1(actDB) // converting db data into response
 	if err != nil {
 		fmt.Println(err.Error())
@@ -56,13 +56,16 @@ func (at *service) AdminCancelTable(admin dto.CancelTable, tableId int) (dto.Can
 
 }
 
-func (aut *service) AdminUpdateTable(admin dto.UpdateTable, tableId int) (dto.UpdateTable, error) {
+func (aut *service) AdminUpdateTable(admin dto.UpdateTable, bookingId int64) (dto.UpdateTable, error) {
+	log.Print("in service")
 	act := dto.UpdateTable{}
 
 	if admin.BookingID <= 0 {
 		return act, errors.New("booking id is invalid")
 	}
-	_, err := aut.AdminBookingRepo.AdminUpdateTable(admin, tableId)
+	log.Print("sevice update info: ")
+	log.Println(admin)
+	_, err := aut.AdminBookingRepo.AdminUpdateTable(admin, bookingId)
 	// act = MapRepoObjectToDto2(actDB) // converting db data into response
 	if err != nil {
 		fmt.Println(err.Error())
@@ -73,7 +76,7 @@ func (aut *service) AdminUpdateTable(admin dto.UpdateTable, tableId int) (dto.Up
 
 }
 
-func (gt *service) AdminGetDetails(ctx context.Context) ([]dto.GetTable, error) {
+func (gt *service) AdminGetDetails(ctx context.Context) ([]dto.BookingDetails, error) {
 	// details := dto.GetTable{}
 	userList, err := gt.AdminBookingRepo.AdminGetDetails(ctx)
 	if err != nil {
