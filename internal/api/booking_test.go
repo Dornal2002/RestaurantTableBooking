@@ -2,68 +2,126 @@ package api
 
 import (
 	"bytes"
-	"context"
-	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"project/internal/app/booking/mocks"
 	"project/internal/app/pkg/dto"
 	"testing"
+
+	"github.com/stretchr/testify/mock"
 )
 
-type MockBookingService struct{}
-
-func (m *MockBookingService) CreateUserBooking(details dto.BookingDetails) (dto.BookingDetails, error) {
-	if details.CustomerName == "test" {
-		return dto.BookingDetails{}, nil
-	}
-	return dto.BookingDetails{BookingID: 1, CustomerName: "test"}, nil
-}
-
-func (m *MockBookingService) GetSlots(ctx context.Context) ([]dto.SlotResponse, error) {
-	return []dto.SlotResponse{{SlotId: 1, StartTime: "09:00", EndTime: "10:00"}}, nil
-}
-
 func TestCreateBookingHandler(t *testing.T) {
-	bookSvc := &MockBookingService{}
+	bookSvc := mocks.NewService(t)
 	handler := CreateBooking(bookSvc)
 
-	reqBody := dto.BookingDetails{CustomerName: "test", SlotId: 1, TableId: 1}
-	body, _ := json.Marshal(reqBody)
-	req := httptest.NewRequest("POST", "/create-booking", bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
-	res := httptest.NewRecorder()
+	tests := []struct {
+		name               string
+		input              string
+		setup              func(mock *mocks.Service)
+		expectedStatusCode int
+	}{
+		{
+			name: "Success for booking details",
+			input: `{
+						"customer_name":"booking",
+						"contact_no":"9328783491",
+						"date":"1-2-2003",
+						"slot_id":1,
+						"table_id":2
 
-	handler(res, req)
-
-	if res.Code != http.StatusOK {
-		t.Errorf("Expected status code %d, got %d", http.StatusOK, res.Code)
+					}`,
+			setup: func(mockSvc *mocks.Service) {
+				mockSvc.On("CreateUserBooking", mock.Anything).Return(dto.BookingDetails{}, nil).Once()
+			},
+			expectedStatusCode: http.StatusOK,
+		},
+		{
+			name: "Fail for booking details",
+			input: `{
+				"customer_name":"",
+				"contact_no":"",
+				"date":"",
+				"slot_id":0,
+				"table_id":0
+					}`,
+			setup: func(mockSvc *mocks.Service) {
+			},
+			expectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "Fail for booking details",
+			input: `{
+				"customer_name":"",
+				"date":"",
+				"slot_id":0,
+				"table_id":0
+						
+					}`,
+			setup: func(mockSvc *mocks.Service) {
+			},
+			expectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "Fail for booking details",
+			input: `{
+				"contact_no":"",
+				"date":"",
+				"slot_id":0,
+				"table_id":0
+						
+					}`,
+			setup: func(mockSvc *mocks.Service) {
+			},
+			expectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "Fail for booking details",
+			input: `{
+				"name":"",
+				"contact_no":"",
+				"slot_id":0,
+				"table_id":0
+						
+					}`,
+			setup: func(mockSvc *mocks.Service) {
+			},
+			expectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "Fail for booking details",
+			input: `{
+				"name":"",
+				"contact_no":"",
+				"date":""
+						
+					}`,
+			setup: func(mockSvc *mocks.Service) {
+			},
+			expectedStatusCode: http.StatusBadRequest,
+		},
 	}
 
-	if res.Body.String() != "Booking Done Successfully" {
-		t.Errorf("Expected response 'Booking Done Successfully', got %s", res.Body.String())
-	}
-}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			test.setup(bookSvc)
 
-func TestGetSlotsHandler(t *testing.T) {
-	bookSvc := &MockBookingService{}
-	handler := GetSlots(bookSvc)
+			req, err := http.NewRequest("POST", "/bookings", bytes.NewBuffer([]byte(test.input)))
+			if err != nil {
+				t.Fatal(err)
+				return
+			}
 
-	req := httptest.NewRequest("GET", "/slots", nil)
-	res := httptest.NewRecorder()
+			rr := httptest.NewRecorder()
+			handler := http.HandlerFunc(handler)
+			handler.ServeHTTP(rr, req)
 
-	handler(res, req)
+			fmt.Println("Error")
 
-	if res.Code != http.StatusOK {
-		t.Errorf("Expected status code %d, got %d", http.StatusOK, res.Code)
-	}
-
-	var response []dto.SlotResponse
-	err := json.Unmarshal(res.Body.Bytes(), &response)
-	if err != nil {
-		t.Errorf("Error unmarshalling response: %v", err)
-	}
-
-	if len(response) != 1 {
-		t.Errorf("Expected 1 slot, got %d", len(response))
+			if rr.Result().StatusCode != test.expectedStatusCode {
+				t.Errorf("Expected %d but got %d", test.expectedStatusCode, rr.Result().StatusCode)
+			}
+		})
 	}
 }

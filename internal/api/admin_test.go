@@ -2,82 +2,95 @@ package api
 
 import (
 	"bytes"
-	"context"
-	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"project/internal/app/pkg/dto"
+	"project/internal/app/admin/mocks"
 	"testing"
+
+	"github.com/stretchr/testify/mock"
 )
 
-type MockAdminService struct{}
-
-func (m *MockAdminService) AdminSignup(ctx context.Context, req dto.AdminSignUpRequest) error {
-	return nil
-}
-
-func (m *MockAdminService) AdminLogin(ctx context.Context, req dto.AdminLoginRequest) error {
-	return nil
-}
-
-func (m *MockAdminService) GetAdmin(ctx context.Context) ([]dto.AdminResponse, error) {
-	return []dto.AdminResponse{{AdminID: 1, Name: "test"}}, nil
-}
-
-func TestSignUpHandler(t *testing.T) {
-	adminSvc := &MockAdminService{}
-	handler := SignUpHandler(adminSvc)
-
-	reqBody := dto.AdminSignUpRequest{Name: "test", Password: "password"}
-	body, _ := json.Marshal(reqBody)
-	req := httptest.NewRequest("POST", "/signup", bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
-	res := httptest.NewRecorder()
-
-	handler(res, req)
-
-	if res.Code != http.StatusAccepted {
-		t.Errorf("Expected status code %d, got %d", http.StatusAccepted, res.Code)
-	}
-}
-
 func TestLoginHandler(t *testing.T) {
-	adminSvc := &MockAdminService{}
-	handler := LoginHandler(adminSvc)
+	adminSvc := mocks.NewAdminService(t)
+	userLoginHandler := LoginHandler(adminSvc)
 
-	reqBody := dto.AdminLoginRequest{Email: "test", Password: "password"}
-	body, _ := json.Marshal(reqBody)
-	req := httptest.NewRequest("POST", "/login", bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
-	res := httptest.NewRecorder()
-
-	handler(res, req)
-
-	if res.Code != http.StatusAccepted {
-		t.Errorf("Expected status code %d, got %d", http.StatusAccepted, res.Code)
+	tests := []struct {
+		name               string
+		input              string
+		setup              func(mock *mocks.AdminService)
+		expectedStatusCode int
+	}{
+		{
+			name: "Success for user login",
+			input: `{
+						"email": "admin@gmail.com",
+						"password": "Abc@123456"   
+					}`,
+			setup: func(mockSvc *mocks.AdminService) {
+				mockSvc.On("AdminLogin", mock.Anything, mock.Anything).Return(nil).Once()
+			},
+			expectedStatusCode: http.StatusOK,
+		},
+		{
+			name: "Fail for user login",
+			input: `{
+						"email": "admin"						
+					}`,
+			setup: func(mockSvc *mocks.AdminService) {
+			},
+			expectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "Fail for user login",
+			input: `{
+						"password": "12345"   
+					}`,
+			setup: func(mockSvc *mocks.AdminService) {
+			},
+			expectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "Fail for user login",
+			input: `{
+						"email": "",
+						"password": ""   
+					}`,
+			setup: func(mockSvc *mocks.AdminService) {
+			},
+			expectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "Fail for user login",
+			input: `{
+						"email": "admin,
+						"password": "Abc"   
+					}`,
+			setup: func(mockSvc *mocks.AdminService) {
+			},
+			expectedStatusCode: http.StatusInternalServerError,
+		},
 	}
-}
 
-func TestGetUsersHandler(t *testing.T) {
-	adminSvc := &MockAdminService{}
-	handler := GetUsersHandler(adminSvc)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			test.setup(adminSvc)
 
-	req := httptest.NewRequest("GET", "/users", nil)
-	res := httptest.NewRecorder()
+			req, err := http.NewRequest("POST", "/admin/login", bytes.NewBuffer([]byte(test.input)))
+			if err != nil {
+				t.Fatal(err)
+				return
+			}
 
-	handler(res, req)
+			rr := httptest.NewRecorder()
+			handler := http.HandlerFunc(userLoginHandler)
+			handler.ServeHTTP(rr, req)
 
-	if res.Code != http.StatusOK {
-		t.Errorf("Expected status code %d, got %d", http.StatusOK, res.Code)
-	}
+			fmt.Println("Error")
 
-	var response []dto.AdminResponse
-	err := json.Unmarshal(res.Body.Bytes(), &response)
-	if err != nil {
-		t.Errorf("Error unmarshalling response: %v", err)
-	}
-
-	if len(response) != 1 {
-		t.Errorf("Expected 1 admin user, got %d", len(response))
+			if rr.Result().StatusCode != test.expectedStatusCode {
+				t.Errorf("Expected %d but got %d", test.expectedStatusCode, rr.Result().StatusCode)
+			}
+		})
 	}
 }

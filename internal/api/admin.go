@@ -43,7 +43,6 @@ func SignUpHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *h
 }
 
 func LoginHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *http.Request) {
-
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		loginReq := dto.AdminLoginRequest{}
@@ -57,6 +56,8 @@ func LoginHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *ht
 
 		err = loginReq.Validate()
 		if err != nil {
+			fmt.Println("#######")
+			fmt.Println(err, loginReq)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Plz, Provide Valid Credentials !!"))
 			return
