@@ -2,7 +2,7 @@ package dto
 
 import (
 	"fmt"
-	"time"
+	"regexp"
 	"unicode"
 )
 
@@ -53,9 +53,9 @@ func (bd *BookingDetails) ValidateBooking() error {
 }
 
 func isValidDateFormat(date string) bool {
-	// regex := `^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$`
-	// re := regexp.MustCompile(regex)
-	// return re.MatchString(date)
-	_, err := time.Parse("02-01-2006", date)
-	return err == nil
+	regex := `^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$`
+	re := regexp.MustCompile(regex)
+	return re.MatchString(date)
+	// _, err := time.Parse("02-01-2006", date)
+	// return err == nil
 }

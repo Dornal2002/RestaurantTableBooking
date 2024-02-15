@@ -56,8 +56,8 @@ func LoginHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *ht
 
 		err = loginReq.Validate()
 		if err != nil {
-			fmt.Println("#######")
-			fmt.Println(err, loginReq)
+			// fmt.Println("#######")
+			// fmt.Println(err, loginReq)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Plz, Provide Valid Credentials !!"))
 			return

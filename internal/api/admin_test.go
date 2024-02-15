@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -29,6 +30,17 @@ func TestLoginHandler(t *testing.T) {
 					}`,
 			setup: func(mockSvc *mocks.AdminService) {
 				mockSvc.On("AdminLogin", mock.Anything, mock.Anything).Return(nil).Once()
+			},
+			expectedStatusCode: http.StatusOK,
+		},
+		{
+			name: "Success for user login",
+			input: `{
+						"email": "admin@gmail.com",
+						"password": "Abc@123456"   
+					}`,
+			setup: func(mockSvc *mocks.AdminService) {
+				mockSvc.On("AdminLogin", mock.Anything, mock.Anything).Return(errors.New("Error occured")).Once()
 			},
 			expectedStatusCode: http.StatusOK,
 		},
