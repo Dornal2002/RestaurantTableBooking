@@ -58,6 +58,7 @@ make test-cover
 
 
 ## Project Structure
+```
 .
 ├── cmd
 │   ├── main.go
@@ -116,6 +117,4 @@ make test-cover
 │       └── tableDetails.go
 ├── readme.md
 └── TableBooking.db
-
-
-
+```
