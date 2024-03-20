@@ -7,6 +7,8 @@ import (
 	"project/internal/api"
 	"project/internal/app"
 	"project/internal/repository"
+
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -22,7 +24,14 @@ func main() {
 	services := app.NewServices(database)
 	router := api.NewRouter(services)
 
-	err = http.ListenAndServe("localhost:8080", router)
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowCredentials: true,
+		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions},
+		AllowedHeaders:   []string{"*"},
+	})
+
+	err = http.ListenAndServe("localhost:8080", c.Handler(router))
 	if err != nil {
 		log.Fatal("Error Occured while Initializing database", err)
 		return
