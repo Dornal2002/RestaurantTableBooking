@@ -1,7 +1,7 @@
 package main
 
 import (
-	"context"
+	// "context"
 	"log"
 	"net/http"
 	"project/internal/api"
@@ -12,9 +12,7 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
-	log.Print(ctx, "Starting Application")
-
+	// ctx := context.Background()
 	database, err := repository.InitializeDatabse()
 	if err != nil {
 		log.Fatal("Error Occured while Initializing database", err)
@@ -31,6 +29,7 @@ func main() {
 		AllowedHeaders:   []string{"*"},
 	})
 
+	log.Println("Server is running on port 8080 ...")
 	err = http.ListenAndServe("localhost:8080", c.Handler(router))
 	if err != nil {
 		log.Fatal("Error Occured while Initializing database", err)

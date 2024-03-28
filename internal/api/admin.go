@@ -10,7 +10,7 @@ import (
 	"project/internal/app/middleware"
 )
 
-func SignUpHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *http.Request) {
+func SignUpHandler(adminSvc admin.AdminService) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -31,19 +31,30 @@ func SignUpHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *h
 			return
 		}
 
-		err = adminSvc.AdminSignup(ctx, req)
+		insertedId,err := adminSvc.AdminSignup(ctx, req)
+
 		if err != nil {
 
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(err.Error()))
 			return
 		}
-		fmt.Fprint(w, "Admin created successfully")
+		// fmt.Fprint(w, "Admin created successfully")
+		token,err:=middleware.GenerateJWT(dto.LoginResponse{Id: int64(insertedId),Role: req.Role})
+		if err != nil {
+
+			w.WriteHeader(http.StatusForbidden)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		var admninJsonResp dto.AdminLoginResp
+		admninJsonResp.Token=token
+		json.NewEncoder(w).Encode(admninJsonResp)
 		w.WriteHeader(http.StatusAccepted)
 	}
 }
 
-func LoginHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *http.Request) {
+func LoginHandler(adminSvc admin.AdminService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		loginReq := dto.AdminLoginRequest{}
@@ -61,7 +72,7 @@ func LoginHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *ht
 			w.Write([]byte("Plz, Provide Valid Credentials !!"))
 			return
 		}
-		adminId,err := adminSvc.AdminLogin(ctx, loginReq)
+		loginResp,err := adminSvc.AdminLogin(ctx, loginReq)
 		if err != nil {
 
 			w.WriteHeader(http.StatusUnauthorized)
@@ -70,7 +81,7 @@ func LoginHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *ht
 		}
 
 		// fmt.Fprint(w, "login successful")
-		token,err:=middleware.GenerateJWT(adminId)
+		token,err:=middleware.GenerateJWT(loginResp)
 		w.WriteHeader(http.StatusAccepted)
 
 		if(err!=nil){
@@ -85,8 +96,16 @@ func LoginHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *ht
 	}
 }
 
-func GetUsersHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *http.Request) {
+func GetUsersHandler(adminSvc admin.AdminService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		role, ok := r.Context().Value("role").(string)
+		if !ok {
+			// Role not found in context or not of type string
+			http.Error(w, "Role not found in context", http.StatusInternalServerError)
+			return
+		}
+		fmt.Println(role)
 		ctx := r.Context()
 		response, err := adminSvc.GetAdmin(ctx)
 		log.Println(response)

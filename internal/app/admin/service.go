@@ -11,8 +11,8 @@ import (
 )
 
 type AdminService interface {
-	AdminSignup(ctx context.Context, user dto.AdminSignUpRequest) error
-	AdminLogin(ctx context.Context, user dto.AdminLoginRequest) (int32, error)
+	AdminSignup(ctx context.Context, user dto.AdminSignUpRequest) (int32, error)
+	AdminLogin(ctx context.Context, user dto.AdminLoginRequest) (dto.LoginResponse, error)
 	GetAdmin(ctx context.Context) ([]dto.AdminResponse, error)
 }
 
@@ -25,24 +25,24 @@ func NewService(AdminRepo repository.AdminStorer) AdminService {
 		AdminRepo: AdminRepo,
 	}
 }
-func (as *service) AdminSignup(ctx context.Context, user dto.AdminSignUpRequest) error {
+func (as *service) AdminSignup(ctx context.Context, user dto.AdminSignUpRequest) (int32, error) {
 	user.Password = HashPassword(user.Password)
-	err := as.AdminRepo.AdminSignup(ctx, user)
+	insertedId,err := as.AdminRepo.AdminSignup(ctx, user)
 	if err != nil {
 		fmt.Println("Error occured while admin signup", err.Error())
-		return err
+		return 0,err
 	}
 
-	return nil
+	return insertedId,nil
 
 }
 
-func (as *service) AdminLogin(ctx context.Context, user dto.AdminLoginRequest) (int32, error) {
-	adminId,err := as.AdminRepo.AdminLogin(ctx, user)
+func (as *service) AdminLogin(ctx context.Context, user dto.AdminLoginRequest) (dto.LoginResponse, error) {
+	loginResp,err := as.AdminRepo.AdminLogin(ctx, user)
 	if err != nil {
-		return 0,err
+		return dto.LoginResponse{},err
 	}
-	return adminId,nil
+	return loginResp,nil
 
 }
 func (as *service) GetAdmin(ctx context.Context) ([]dto.AdminResponse, error) {

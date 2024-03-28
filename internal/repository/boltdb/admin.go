@@ -21,41 +21,53 @@ func NewAdminRepo(db1 *sql.DB) repository.AdminStorer {
 	}
 }
 
-func (as *adminStore) AdminSignup(ctx context.Context, user dto.AdminSignUpRequest) error {
+func (as *adminStore) AdminSignup(ctx context.Context, user dto.AdminSignUpRequest) (int32, error) {
 
-	query := "INSERT INTO admin_data (name,contact_no,email,password) VALUES(?,?,?,?)"
-	statement, err := as.BaseRepository.DB.Prepare(query)
-	if err != nil {
-		fmt.Println("error in inserting: " + err.Error())
-		return err
-	}
-	_, err = statement.Exec(user.Name, user.ContactNo, user.Email, user.Password)
-	if err != nil {
-		fmt.Println("error occured in executing insert query: " + err.Error())
-		return err
-	}
+    query := "INSERT INTO admin_data (name, contact_no, email, password, role) VALUES (?, ?, ?, ?, ?)"
+    statement, err := as.BaseRepository.DB.Prepare(query)
+    if err != nil {
+        errMsg := fmt.Errorf("failed to prepare insert statement: %v", err)
+        return 0, errMsg // Return 0 as ID and the error
+    }
+    defer statement.Close()
 
-	return nil
+    result, err := statement.Exec(user.Name, user.ContactNo, user.Email, user.Password, user.Role)
+    if err != nil {
+        errMsg := fmt.Errorf("failed to execute insert query: %v", err)
+        return 0, errMsg // Return 0 as ID and the error
+    }
+
+    insertedID, err := result.LastInsertId()
+    if err != nil {
+        errMsg := fmt.Errorf("failed to get last inserted ID: %v", err)
+        return 0, errMsg // Return 0 as ID and the error
+    }
+
+    return int32(insertedID), nil // Return the inserted ID and no error
 }
 
-func (as *adminStore) AdminLogin(ctx context.Context, user dto.AdminLoginRequest) (int32, error){
+func (as *adminStore) AdminLogin(ctx context.Context, user dto.AdminLoginRequest) (dto.LoginResponse, error){
 
-	query := fmt.Sprintf("SELECT password,admin_id FROM admin_data WHERE email = \"%s\"", user.Email)
+	query := fmt.Sprintf("SELECT password,admin_id,role FROM admin_data WHERE email = \"%s\"", user.Email)
 	rows, err := as.BaseRepository.DB.Query(query)
 	var adminId int32
 	if err != nil {
 		fmt.Println("Email is incorrect: " + err.Error())
-		return 0,err
+		return dto.LoginResponse{},err
 	}
 	var password string
+	var role string
 	for rows.Next() {
-		rows.Scan(&password,&adminId)
+		rows.Scan(&password,&adminId,&role)
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(password), []byte(user.Password))
 	if err != nil {
-		return 0, err
+		return dto.LoginResponse{}, err
 	}
-	return adminId,nil
+	var loginResp dto.LoginResponse
+	loginResp.Id = int64(adminId)
+	loginResp.Role = role
+	return loginResp,nil
 
 }
 

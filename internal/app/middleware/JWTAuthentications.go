@@ -1,10 +1,12 @@
 package middleware
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"slices"
-	"strings"
+
+	// "strings"
 	"time"
 
 	"project/internal"
@@ -16,7 +18,6 @@ import (
 // Role constants
 const (
 	RoleCustomer    = "customer"
-	RoleDeliveryBoy = "deliveryboy"
 	RoleAdmin       = "admin"
 )
 
@@ -31,7 +32,7 @@ func JWTMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Extract JWT token from Authorization header
 		path := r.URL.Path
-		if path == "/user/signup" || path == "/user/login" {
+		if path == "/signup" || path == "/login" {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -41,7 +42,7 @@ func JWTMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		tokenString = strings.Replace(tokenString, "Bearer ", "", 1)
+		// tokenString = strings.Replace(tokenString, "Bearer ", "", 1)
 
 		// Parse and validate JWT token
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -107,7 +108,7 @@ func RequireAuth(next http.Handler, roles []string) http.Handler {
 			return
 		}
 
-		tokenString = strings.Replace(tokenString, "Bearer ", "", 1)
+		// tokenString = strings.Replace(tokenString, "Bearer ", "", 1)
 
 		// Parse and validate JWT token
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -149,20 +150,22 @@ func RequireAuth(next http.Handler, roles []string) http.Handler {
 
 		// r.Header.Set("user_id", Id.String())
 		// r.Header.Set("role", Role)
+		ctx := context.WithValue(r.Context(), "role", role)
+		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
 
 	})
 
 }
-func GenerateJWT(adminId int32) (string, error) {
+func GenerateJWT(loginResp dto.LoginResponse) (string, error) {
 	// Define the expiration time for the token
 	expirationTime := time.Now().Add(time.Hour * 1)
 
 	// Create claims
 	claims := jwt.MapClaims{
-		"userid": adminId,
-		// "role":   user.Role,
+		"userid": loginResp.Id,
+		"role":   loginResp.Role,
 		"exp":    expirationTime.Unix(),
 	}
 

@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func AssignTableHandler(ab adminBookings.AdminBookingService) func(w http.ResponseWriter, r *http.Request) {
+func AssignTableHandler(ab adminBookings.AdminBookingService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// ctx := r.Context()
 		assignReq := dto.AdminAssignTable{}
@@ -43,7 +43,7 @@ func AssignTableHandler(ab adminBookings.AdminBookingService) func(w http.Respon
 	}
 }
 
-func CancelTableHandler(ct adminBookings.AdminBookingService) func(w http.ResponseWriter, r *http.Request) {
+func CancelTableHandler(ct adminBookings.AdminBookingService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := dto.CancelTable{}
 		params := mux.Vars(r)
@@ -85,7 +85,7 @@ func CancelTableHandler(ct adminBookings.AdminBookingService) func(w http.Respon
 	}
 }
 
-func UpdateTableHandler(ut adminBookings.AdminBookingService) func(w http.ResponseWriter, r *http.Request) {
+func UpdateTableHandler(ut adminBookings.AdminBookingService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		updateReq := dto.UpdateTable{}
 		// ctx := r.Context()
@@ -115,7 +115,7 @@ func UpdateTableHandler(ut adminBookings.AdminBookingService) func(w http.Respon
 	}
 }
 
-func GetBookingsHandler(gbh adminBookings.AdminBookingService) func(w http.ResponseWriter, r *http.Request) {
+func GetBookingsHandler(gbh adminBookings.AdminBookingService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// details := dto.GetTable{}
 		ctx := r.Context()

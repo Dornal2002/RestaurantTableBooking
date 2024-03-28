@@ -13,6 +13,7 @@ type AdminSignUpRequest struct {
 	ContactNo string `json:"contact_no"`
 	Email     string `json:"email"`
 	Password  string `json:"password"`
+	Role string `json:"role"`
 }
 
 type AdminLoginRequest struct {
@@ -31,6 +32,12 @@ type AdminResponse struct {
 type AdminLoginResp struct{
 	Token  string `json:"token"`
 }
+
+type LoginResponse struct {
+	Id int64 `json:"id"`
+	Role string `json:"role"`
+}
+
 func (ar *AdminLoginRequest) Validate() error {
 	if len(ar.Email) <= 0 || len(ar.Password) <= 0 {
 		return fmt.Errorf("please provide anything as input")

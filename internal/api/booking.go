@@ -9,7 +9,7 @@ import (
 	"project/internal/app/pkg/dto"
 )
 
-func CreateBooking(bookSvc booking.Service) func(w http.ResponseWriter, r *http.Request) {
+func CreateBooking(bookSvc booking.Service) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var booking_details dto.BookingDetails
@@ -47,7 +47,7 @@ func CreateBooking(bookSvc booking.Service) func(w http.ResponseWriter, r *http.
 	}
 }
 
-func GetSlots(bookSvc booking.Service) func(w http.ResponseWriter, r *http.Request) {
+func GetSlots(bookSvc booking.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		// details := dto.SlotResponse{}
