@@ -46,20 +46,42 @@ func AssignTableHandler(ab adminBookings.AdminBookingService) func(w http.Respon
 func CancelTableHandler(ct adminBookings.AdminBookingService) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := dto.CancelTable{}
-		err := json.NewDecoder(r.Body).Decode(&req)
+		params := mux.Vars(r)
+		id, err := strconv.ParseInt(params["booking_id"], 10, 64)
 		if err != nil {
+			fmt.Println("Error in Cancel table Handler: " + err.Error())
+			w.WriteHeader(404)
+			return
+		}
+		if id <= 0 {
 			w.WriteHeader(http.StatusBadRequest)
-			log.Print("error !! wassignReqhile decoding Update data from json into struct !!")
 			return
 		}
-		_, err = ct.AdminCancelTable(req)
+		json.NewDecoder(r.Body).Decode(&req)
+		log.Printf("%v %v ", req, id)
+		req.BookingID = int(id)
+		_, err = ct.AdminCancelTable(req, id)
 
 		if err != nil {
-			fmt.Println("Error Occured at AdminCancelTable", err.Error())
+			fmt.Println("Error in cancel table Handler: " + err.Error())
+			w.WriteHeader(404)
 			return
 		}
+		fmt.Fprint(w, "Booking cancelled successfully")
+		// err := json.NewDecoder(r.Body).Decode(&req)
+		// if err != nil {
+		// 	w.WriteHeader(http.StatusBadRequest)
+		// 	log.Print("error !! assignReq while decoding Update data from json into struct !!")
+		// 	return
+		// }
+		// _, err = ct.AdminCancelTable(req)
 
-		fmt.Fprint(w, "Table Cancelled Sucessfully")
+		// if err != nil {
+		// 	fmt.Println("Error Occured at AdminCancelTable", err.Error())
+		// 	return
+		// }
+
+		// fmt.Fprint(w, "Table Cancelled Sucessfully")
 	}
 }
 

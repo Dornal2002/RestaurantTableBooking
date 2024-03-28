@@ -38,23 +38,24 @@ func (as *adminStore) AdminSignup(ctx context.Context, user dto.AdminSignUpReque
 	return nil
 }
 
-func (as *adminStore) AdminLogin(ctx context.Context, user dto.AdminLoginRequest) error {
+func (as *adminStore) AdminLogin(ctx context.Context, user dto.AdminLoginRequest) (int32, error){
 
-	query := fmt.Sprintf("SELECT password FROM admin_data WHERE email = \"%s\"", user.Email)
+	query := fmt.Sprintf("SELECT password,admin_id FROM admin_data WHERE email = \"%s\"", user.Email)
 	rows, err := as.BaseRepository.DB.Query(query)
+	var adminId int32
 	if err != nil {
 		fmt.Println("Email is incorrect: " + err.Error())
-		return err
+		return 0,err
 	}
 	var password string
 	for rows.Next() {
-		rows.Scan(&password)
+		rows.Scan(&password,&adminId)
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(password), []byte(user.Password))
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return adminId,nil
 
 }
 

@@ -14,9 +14,11 @@ func CreateBooking(bookSvc booking.Service) func(w http.ResponseWriter, r *http.
 	return func(w http.ResponseWriter, r *http.Request) {
 		var booking_details dto.BookingDetails
 		err := json.NewDecoder(r.Body).Decode(&booking_details)
+		log.Print(err)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			log.Print("error !! while decoding Update data from json into struct !!")
+			log.Print(err)
 			return
 		}
 

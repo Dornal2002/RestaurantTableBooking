@@ -11,7 +11,7 @@ import (
 
 type AdminBookingService interface {
 	AdminAssignTable(admin dto.AdminAssignTable) (dto.AdminAssignTable, error)
-	AdminCancelTable(admin dto.CancelTable) (dto.CancelTable, error)
+	AdminCancelTable(admin dto.CancelTable, bookingId int64) (dto.CancelTable, error)
 	AdminUpdateTable(admin dto.UpdateTable, bookingId int64) (dto.UpdateTable, error)
 	AdminGetDetails(ctx context.Context) ([]dto.BookingDetails, error)
 }
@@ -38,13 +38,13 @@ func (at *service) AdminAssignTable(admin dto.AdminAssignTable) (dto.AdminAssign
 	return bkd, nil
 }
 
-func (at *service) AdminCancelTable(admin dto.CancelTable) (dto.CancelTable, error) {
+func (at *service) AdminCancelTable(admin dto.CancelTable, bookingId int64) (dto.CancelTable, error) {
 	act := dto.CancelTable{}
 
 	if admin.BookingID == 0 {
 		return act, errors.New("booking id is invalid")
 	}
-	_, err := at.AdminBookingRepo.AdminCancelTable(admin)
+	_, err := at.AdminBookingRepo.AdminCancelTable(admin, bookingId)
 	// act = MapRepoObjectToDto1(actDB) // converting db data into response
 	if err != nil {
 		fmt.Println(err.Error())
@@ -71,6 +71,8 @@ func (aut *service) AdminUpdateTable(admin dto.UpdateTable, bookingId int64) (dt
 		fmt.Println(err.Error())
 		return act, err
 	}
+
+	
 
 	return act, nil
 

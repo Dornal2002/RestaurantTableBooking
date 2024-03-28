@@ -7,7 +7,7 @@ import (
 
 type AdminStorer interface {
 	AdminSignup(ctx context.Context, user dto.AdminSignUpRequest) error
-	AdminLogin(ctx context.Context, user dto.AdminLoginRequest) error
+	AdminLogin(ctx context.Context, user dto.AdminLoginRequest) (int32, error)
 	GetAdmin(ctx context.Context) ([]dto.AdminResponse, error)
 }
 

@@ -51,9 +51,9 @@ func (bs *AdminBookingStore) AdminAssignTable(abd dto.AdminAssignTable) (dto.Adm
 	return b1, nil
 }
 
-func (bs *AdminBookingStore) AdminCancelTable(admin dto.CancelTable) (dto.CancelTable, error) {
+func (bs *AdminBookingStore) AdminCancelTable(admin dto.CancelTable, bookingId int64) (dto.CancelTable, error) {
 	act := dto.CancelTable{}
-	_, err := bs.BaseRepository.DB.Exec("DELETE FROM table_bookings where booking_id=?", admin.BookingID)
+	_, err := bs.BaseRepository.DB.Exec("DELETE FROM table_bookings where booking_id=?", bookingId)
 	if err != nil {
 		fmt.Println("Error occured while deleting the data in repository", err)
 		return act, err

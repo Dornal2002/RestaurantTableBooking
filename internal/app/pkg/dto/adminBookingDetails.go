@@ -27,6 +27,8 @@ type UpdateTable struct {
 	TableID      int    `json:"table_id"`
 }
 
+
+
 func (bd *AdminAssignTable) Validate() error {
 	if len(bd.CustomerName) == 0 {
 		return fmt.Errorf("name field cannot be empty")
@@ -45,9 +47,9 @@ func (bd *AdminAssignTable) Validate() error {
 	if len(bd.Date) == 0 {
 		return fmt.Errorf("please mention date")
 	}
-	if isValidDateFormat(bd.Date) {
-		return fmt.Errorf("enter valid format for date ie dd-mm-yyyy")
-	}
+	// if isValidDateFormat(bd.Date) {
+	// 	return fmt.Errorf("enter valid format for date ie dd-mm-yyyy")
+	// }
 	// if len(req.Role) == 0 {
 	// 	return fmt.Errorf("role field cannot be empty")
 	// }

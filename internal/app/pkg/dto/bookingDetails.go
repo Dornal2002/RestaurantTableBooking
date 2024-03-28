@@ -2,7 +2,6 @@ package dto
 
 import (
 	"fmt"
-	"regexp"
 	"unicode"
 )
 
@@ -40,9 +39,9 @@ func (bd *BookingDetails) ValidateBooking() error {
 	if len(bd.Date) == 0 {
 		return fmt.Errorf("please mention date")
 	}
-	if isValidDateFormat(bd.Date) {
-		return fmt.Errorf("enter valid format for date ie dd-mm-yyyy")
-	}
+	// if isValidDateFormat(bd.Date) {
+	// 	return fmt.Errorf("enter valid format for date ie dd-mm-yyyy")
+	// }
 	// if len(req.Role) == 0 {
 	// 	return fmt.Errorf("role field cannot be empty")
 	// }
@@ -52,10 +51,10 @@ func (bd *BookingDetails) ValidateBooking() error {
 	return nil
 }
 
-func isValidDateFormat(date string) bool {
-	regex := `^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$`
-	re := regexp.MustCompile(regex)
-	return re.MatchString(date)
-	// _, err := time.Parse("02-01-2006", date)
-	// return err == nil
-}
+// func isValidDateFormat(date string) bool {
+// 	// regex := `^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$`
+// 	// re := regexp.MustCompile(regex)
+// 	// return re.MatchString(date)
+// 	// _, err := time.Parse("02-01-2006", date)
+// 	// return err == nil
+// }

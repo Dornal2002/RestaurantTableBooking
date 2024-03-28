@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"project/internal/app/admin"
 	"project/internal/app/pkg/dto"
+	"project/internal/app/middleware"
 )
 
 func SignUpHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *http.Request) {
@@ -56,21 +57,31 @@ func LoginHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r *ht
 
 		err = loginReq.Validate()
 		if err != nil {
-			// fmt.Println("#######")
-			// fmt.Println(err, loginReq)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Plz, Provide Valid Credentials !!"))
 			return
 		}
-		err = adminSvc.AdminLogin(ctx, loginReq)
+		adminId,err := adminSvc.AdminLogin(ctx, loginReq)
 		if err != nil {
 
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(err.Error()))
 			return
 		}
-		fmt.Fprint(w, "login successful")
+
+		// fmt.Fprint(w, "login successful")
+		token,err:=middleware.GenerateJWT(adminId)
 		w.WriteHeader(http.StatusAccepted)
+
+		if(err!=nil){
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Error !!"))
+			return
+		}
+		var admninJsonResp dto.AdminLoginResp
+		admninJsonResp.Token=token
+		json.NewEncoder(w).Encode(admninJsonResp)
+
 	}
 }
 
@@ -87,3 +98,4 @@ func GetUsersHandler(adminSvc admin.AdminService) func(w http.ResponseWriter, r 
 
 	}
 }
+

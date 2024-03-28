@@ -28,6 +28,9 @@ type AdminResponse struct {
 	Password  string `json:"password"`
 }
 
+type AdminLoginResp struct{
+	Token  string `json:"token"`
+}
 func (ar *AdminLoginRequest) Validate() error {
 	if len(ar.Email) <= 0 || len(ar.Password) <= 0 {
 		return fmt.Errorf("please provide anything as input")

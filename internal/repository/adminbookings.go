@@ -7,7 +7,7 @@ import (
 
 type AdminBookingsStorer interface {
 	AdminAssignTable(admin dto.AdminAssignTable) (dto.AdminAssignTable, error)
-	AdminCancelTable(admin dto.CancelTable) (dto.CancelTable, error)
+	AdminCancelTable(admin dto.CancelTable, bookingId int64) (dto.CancelTable, error)
 	AdminUpdateTable(admin dto.UpdateTable, bookingId int64) (dto.UpdateTable, error)
 	AdminGetDetails(ctx context.Context) ([]dto.BookingDetails, error)
 }
