@@ -139,7 +139,14 @@ func RequireAuth(next http.Handler, roles []string) http.Handler {
 		// }
 		// userId:=claims["userid"].(float64)
 
-		role := claims["role"].(string)
+		// role := claims["role"].(string)
+		// id := claims["id"].(float64)
+		role, ok := claims["role"].(string)
+		if !ok {
+			w.WriteHeader(http.StatusUnauthorized)
+			http.Error(w, "Unauthorized: Invalid role", http.StatusUnauthorized)
+			return
+		}
 
 		if !slices.Contains(roles, role) {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -150,7 +157,18 @@ func RequireAuth(next http.Handler, roles []string) http.Handler {
 
 		// r.Header.Set("user_id", Id.String())
 		// r.Header.Set("role", Role)
-		ctx := context.WithValue(r.Context(), "role", role)
+
+        // Extract user ID
+        id, ok := claims["id"].(float64)
+        if !ok {
+            w.WriteHeader(http.StatusUnauthorized)
+            http.Error(w, "Unauthorized: Invalid ID", http.StatusUnauthorized)
+            return
+        }
+
+        // Add user role and ID to the request context
+        ctx := context.WithValue(r.Context(), "role", role)
+        ctx = context.WithValue(ctx, "id", int(id)) 
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)

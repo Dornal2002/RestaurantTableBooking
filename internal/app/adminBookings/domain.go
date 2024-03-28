@@ -30,8 +30,9 @@ func MapRepoObjectToDto2(repoObj dto.UpdateTable) dto.UpdateTable {
 func MapRepoObjectToDto3(repoObj dto.BookingDetails) dto.BookingDetails {
 	return dto.BookingDetails{
 		BookingID:    int(repoObj.BookingID),
-		CustomerName: repoObj.CustomerName,
-		ContactNo:    repoObj.ContactNo,
+		// CustomerName: repoObj.CustomerName,
+		// ContactNo:    repoObj.ContactNo,
+		Id: repoObj.Id,
 		Date:         repoObj.Date,
 		SlotId:       repoObj.SlotId,
 		TableId:      repoObj.TableId,

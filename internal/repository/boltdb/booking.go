@@ -38,22 +38,23 @@ func (bs *bookingStore) InsertBookingDetails(bookDetails dto.BookingDetails) (re
 		}
 	}
 	if count == 0 {
-		query := `INSERT INTO table_bookings (customer_name, contact_no,date,slot_id,table_id) VALUES (?, ?, ?, ?, ?)`
+		query := `INSERT INTO table_bookings (customer_id,date,slot_id,table_id) VALUES (?, ?, ?, ?)`
 		statement, err := bs.DB.Prepare(query)
 
 		if err != nil {
 			fmt.Println("Error while creating table", err.Error())
 			return b1, err
 		}
-		res, err := statement.Exec(bookDetails.CustomerName, bookDetails.ContactNo, bookDetails.Date, bookDetails.SlotId, bookDetails.TableId)
+		res, err := statement.Exec(bookDetails.Id, bookDetails.Date, bookDetails.SlotId, bookDetails.TableId)
 		if err != nil {
 			fmt.Println("Error occured in inserting data")
 			return b1, err
 		}
 		// fmt.Println(res)
 		b1.BookingID, err = res.LastInsertId()
-		b1.CustomerName = bookDetails.CustomerName
-		b1.ContactNo = bookDetails.ContactNo
+		// b1.CustomerName = bookDetails.CustomerName
+		// b1.ContactNo = bookDetails.ContactNo
+		b1.Id = int64(bookDetails.Id)
 		b1.Date = bookDetails.Date
 		b1.SlotId = bookDetails.SlotId
 		b1.TableId = bookDetails.TableId

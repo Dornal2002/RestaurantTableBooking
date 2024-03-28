@@ -116,7 +116,7 @@ func (bs *AdminBookingStore) AdminGetDetails(ctx context.Context) ([]dto.Booking
 	defer rows.Close()
 	for rows.Next() {
 		user := dto.BookingDetails{}
-		err = rows.Scan(&user.BookingID, &user.CustomerName, &user.ContactNo, &user.Date, &user.SlotId, &user.TableId)
+		err = rows.Scan(&user.BookingID, &user.Id, &user.Date, &user.SlotId, &user.TableId)
 		if err != nil {
 			log.Println(err)
 		}

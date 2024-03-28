@@ -2,13 +2,14 @@ package dto
 
 import (
 	"fmt"
-	"unicode"
+	// "unicode"
 )
 
 type BookingDetails struct {
 	BookingID    int    `json:"booking_id"`
-	CustomerName string `json:"customer_name"`
-	ContactNo    string `json:"contact_no"`
+	// CustomerName string `json:"customer_name"`
+	// ContactNo    string `json:"contact_no"`
+	Id int `json:"id"`
 	Date         string `json:"date"`
 	SlotId       int    `json:"slot_id"`
 	TableId      int    `json:"table_id"`
@@ -22,20 +23,20 @@ type SlotResponse struct {
 }
 
 func (bd *BookingDetails) ValidateBooking() error {
-	if len(bd.CustomerName) == 0 {
-		return fmt.Errorf("name field cannot be empty")
-	}
-	if len(bd.ContactNo) == 0 {
-		return fmt.Errorf("contact Number Cannot be empty")
-	}
-	if len(bd.ContactNo) != 10 {
-		return fmt.Errorf("enter valid Mobile Number")
-	}
-	for _, char := range bd.ContactNo {
-		if !unicode.IsDigit(char) {
-			return fmt.Errorf("contact details must contain only digits")
-		}
-	}
+	// if len(bd.CustomerName) == 0 {
+	// 	return fmt.Errorf("name field cannot be empty")
+	// }
+	// if len(bd.ContactNo) == 0 {
+	// 	return fmt.Errorf("contact Number Cannot be empty")
+	// }
+	// if len(bd.ContactNo) != 10 {
+	// 	return fmt.Errorf("enter valid Mobile Number")
+	// }
+	// for _, char := range bd.ContactNo {
+	// 	if !unicode.IsDigit(char) {
+	// 		return fmt.Errorf("contact details must contain only digits")
+	// 	}
+	// }
 	if len(bd.Date) == 0 {
 		return fmt.Errorf("please mention date")
 	}

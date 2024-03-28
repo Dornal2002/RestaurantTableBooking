@@ -8,8 +8,8 @@ import (
 func MapRepoObjectToDto(repoObj repository.BookingTableDetails) dto.BookingDetails {
 	return dto.BookingDetails{
 		BookingID:    int(repoObj.BookingID),
-		CustomerName: repoObj.CustomerName,
-		ContactNo:    repoObj.ContactNo,
+		// CustomerName: repoObj.CustomerName,
+		// ContactNo:    repoObj.ContactNo,
 		Date:         repoObj.Date,
 		SlotId:       repoObj.SlotId,
 		TableId:      repoObj.TableId,

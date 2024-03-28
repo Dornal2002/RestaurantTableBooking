@@ -22,6 +22,13 @@ func CreateBooking(bookSvc booking.Service) http.HandlerFunc {
 			return
 		}
 
+		id, ok := r.Context().Value("id").(int)
+		if !ok {
+			// ID not found in context or not of type int
+			http.Error(w, "ID not found in context", http.StatusInternalServerError)
+			return
+		}
+		booking_details.Id = id
 		err = booking_details.ValidateBooking()
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -36,7 +43,7 @@ func CreateBooking(bookSvc booking.Service) http.HandlerFunc {
 			log.Fatal("Error Occured during decoding", err)
 			return
 		}
-		if response.BookingID == 0 || response.CustomerName == "" {
+		if response.BookingID == 0  {
 			fmt.Fprint(w, "No Available slots")
 		} else {
 			fmt.Fprint(w, "Booking Done Successfully")

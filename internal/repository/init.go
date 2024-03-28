@@ -17,9 +17,19 @@ func InitializeDatabse() (*sql.DB, error) {
 		fmt.Println("Error occured while creating database", err.Error())
 		return nil, err
 	}
-	query := "CREATE TABLE IF NOT EXISTS table_bookings (booking_id INTEGER PRIMARY KEY AUTOINCREMENT,customer_name TEXT,contact_no TEXT ,date TEXT,slot_id INTEGER,table_id INTEGER,FOREIGN KEY (booking_id) REFERENCES time_slots(id),FOREIGN KEY (booking_id) REFERENCES tableDetails(table_id))"
+	query := "CREATE TABLE IF NOT EXISTS admin_data (admin_id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,contact_no TEXT NOT NULL ,email TEXT NOT NULL UNIQUE,password TEXT NOT NULL,role VARCHAR(20) DEFAULT 'customer' CHECK(role IN ('customer','admin')))"
 
 	statement, err := db.Prepare(query)
+
+	if err != nil {
+		fmt.Println("Error while creating admin_data table", err.Error())
+		return nil, err
+	}
+	statement.Exec()
+	// query := "CREATE TABLE IF NOT EXISTS table_bookings (booking_id INTEGER PRIMARY KEY AUTOINCREMENT,customer_name TEXT,contact_no TEXT ,date TEXT,slot_id INTEGER,table_id INTEGER,FOREIGN KEY (booking_id) REFERENCES time_slots(id),FOREIGN KEY (booking_id) REFERENCES tableDetails(table_id))"
+	query = "CREATE TABLE IF NOT EXISTS table_bookings (booking_id INTEGER PRIMARY KEY AUTOINCREMENT,customer_id INTEGER ,date TEXT,slot_id INTEGER,table_id INTEGER,FOREIGN KEY (booking_id) REFERENCES time_slots(id),FOREIGN KEY (booking_id) REFERENCES tableDetails(table_id),FOREIGN KEY (customer_id) REFERENCES admin_data(admin_id))"
+
+	statement, err = db.Prepare(query)
 
 	if err != nil {
 		fmt.Println("Error while creating table_bookings table ", err.Error())
@@ -39,15 +49,6 @@ func InitializeDatabse() (*sql.DB, error) {
 	statement.Exec()
 	seedTableData()
 
-	query = "CREATE TABLE IF NOT EXISTS admin_data (admin_id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,contact_no TEXT NOT NULL ,email TEXT NOT NULL UNIQUE,password TEXT NOT NULL,role VARCHAR(20) DEFAULT 'customer' CHECK(role IN ('customer','admin')))"
-
-	statement, err = db.Prepare(query)
-
-	if err != nil {
-		fmt.Println("Error while creating admin_data table", err.Error())
-		return nil, err
-	}
-	statement.Exec()
 
 	query = "CREATE TABLE IF NOT EXISTS restaurant (id INTEGER PRIMARY KEY, name TEXT,address TEXT)"
 

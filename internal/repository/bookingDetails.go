@@ -12,12 +12,13 @@ type BookingStorer interface {
 }
 
 type BookingTableDetails struct {
-	BookingID    int64
-	CustomerName string
-	ContactNo    string
-	Date         string
-	SlotId       int
-	TableId      int
+	BookingID int64
+	// CustomerName string
+	// ContactNo    string
+	Id      int64
+	Date    string
+	SlotId  int
+	TableId int
 }
 
 type SlotDetails struct {
