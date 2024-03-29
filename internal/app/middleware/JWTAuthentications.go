@@ -3,6 +3,8 @@ package middleware
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	// "log"
 	"net/http"
 	"slices"
 
@@ -159,9 +161,10 @@ func RequireAuth(next http.Handler, roles []string) http.Handler {
 		// r.Header.Set("role", Role)
 
         // Extract user ID
-        id, ok := claims["id"].(float64)
+        id, ok := claims["userid"].(float64)
         if !ok {
             w.WriteHeader(http.StatusUnauthorized)
+			fmt.Println("id",id)
             http.Error(w, "Unauthorized: Invalid ID", http.StatusUnauthorized)
             return
         }
