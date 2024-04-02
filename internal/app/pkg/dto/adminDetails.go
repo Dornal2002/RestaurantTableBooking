@@ -27,6 +27,7 @@ type AdminResponse struct {
 	ContactNo string `json:"contact_no"`
 	Email     string `json:"email"`
 	Password  string `json:"password"`
+	Role string `json:"role"`
 }
 
 type AdminLoginResp struct{

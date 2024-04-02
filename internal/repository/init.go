@@ -17,7 +17,7 @@ func InitializeDatabse() (*sql.DB, error) {
 		fmt.Println("Error occured while creating database", err.Error())
 		return nil, err
 	}
-	query := "CREATE TABLE IF NOT EXISTS table_bookings (booking_id INTEGER PRIMARY KEY AUTOINCREMENT,customer_name TEXT,contact_no TEXT ,date TEXT,slot_id INTEGER,table_id INTEGER,FOREIGN KEY (booking_id) REFERENCES time_slots(id),FOREIGN KEY (booking_id) REFERENCES tableDetails(table_id))"
+	query := "CREATE TABLE IF NOT EXISTS table_bookings (booking_id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL ,date TEXT,slot_id INTEGER,table_id INTEGER,FOREIGN KEY (booking_id) REFERENCES time_slots(id),FOREIGN KEY (booking_id) REFERENCES tableDetails(table_id),FOREIGN KEY (user_id) REFERENCES admin_data(admin_id))"
 
 	statement, err := db.Prepare(query)
 

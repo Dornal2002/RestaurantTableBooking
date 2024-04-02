@@ -9,6 +9,7 @@ type AdminStorer interface {
 	AdminSignup(ctx context.Context, user dto.AdminSignUpRequest) (int32, error)
 	AdminLogin(ctx context.Context, user dto.AdminLoginRequest) (dto.LoginResponse, error)
 	GetAdmin(ctx context.Context) ([]dto.AdminResponse, error)
+	GetUserById(ctx context.Context, id int64) (dto.AdminResponse, error)
 }
 
 type AdminPersonalDetails struct {

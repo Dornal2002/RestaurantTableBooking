@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"project/internal/app/pkg/dto"
@@ -74,7 +75,7 @@ func (as *adminStore) AdminLogin(ctx context.Context, user dto.AdminLoginRequest
 func (as *adminStore) GetAdmin(ctx context.Context) ([]dto.AdminResponse, error) {
 
 	usersList := make([]dto.AdminResponse, 0)
-	query := "SELECT admin_id,name,contact_no,email FROM admin_data"
+	query := "SELECT admin_id,name,contact_no,email,role FROM admin_data"
 	rows, err := as.BaseRepository.DB.Query(query)
 	log.Println(rows)
 	if err != nil {
@@ -84,10 +85,43 @@ func (as *adminStore) GetAdmin(ctx context.Context) ([]dto.AdminResponse, error)
 
 	for rows.Next() {
 		user := dto.AdminResponse{}
-		rows.Scan(&user.AdminID, &user.Name, &user.ContactNo, &user.Email)
+		rows.Scan(&user.AdminID, &user.Name, &user.ContactNo, &user.Email,&user.Role)
 		log.Println(user)
 		usersList = append(usersList, user)
 	}
 	log.Println(usersList)
 	return usersList, nil
+}
+
+func (as *adminStore) GetUserById(ctx context.Context, id int64) (dto.AdminResponse, error) {
+	usersList := dto.AdminResponse{}
+
+	// Prepare the SQL query with parameter binding
+	query := "SELECT admin_id, name, contact_no, email, role FROM admin_data WHERE admin_id = ?"
+
+	// Execute the query with the provided id
+	rows, err := as.BaseRepository.DB.QueryContext(ctx, query, id)
+	if err != nil {
+		log.Printf("error in executing query: %v", err)
+		return usersList, err
+	}
+	defer rows.Close()
+
+	// Iterate over the rows and scan the data into AdminResponse struct
+	for rows.Next() {
+		user := dto.AdminResponse{}
+		err := rows.Scan(&user.AdminID, &user.Name, &user.ContactNo, &user.Email, &user.Role)
+		if err != nil {
+			log.Printf("error in scanning row: %v", err)
+			return usersList, err
+		}
+		return usersList, nil
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Printf("error in iterating rows: %v", err)
+		return usersList, err
+	}
+
+	return dto.AdminResponse{},errors.New("user Not found")
 }

@@ -105,24 +105,30 @@ func (bs *AdminBookingStore) AdminUpdateTable(admin dto.UpdateTable, bookingId i
 }
 
 func (bs *AdminBookingStore) AdminGetDetails(ctx context.Context) ([]dto.BookingDetails, error) {
-	usersList := make([]dto.BookingDetails, 0)
-	query := "SELECT * FROM table_bookings"
-	rows, err := bs.BaseRepository.DB.Query(query)
-	// fmt.Println(rows)
-	if err != nil {
-		return usersList, err
-	}
+    usersList := make([]dto.BookingDetails, 0)
+    query := `SELECT tb.booking_id, ad.admin_id ,ad.name AS user_name, ad.contact_no AS user_contact_no, tb.date, tb.slot_id, tb.table_id
+                FROM table_bookings tb
+                JOIN admin_data ad ON tb.user_id = ad.admin_id`
+    rows, err := bs.BaseRepository.DB.QueryContext(ctx, query)
+    if err != nil {
+        return usersList, err
+    }
+    defer rows.Close()
 
-	defer rows.Close()
-	for rows.Next() {
-		user := dto.BookingDetails{}
-		err = rows.Scan(&user.BookingID, &user.CustomerName, &user.ContactNo, &user.Date, &user.SlotId, &user.TableId)
-		if err != nil {
-			log.Println(err)
-		}
-		usersList = append(usersList, user)
-	}
+    for rows.Next() {
+        user := dto.BookingDetails{}
+        err = rows.Scan(&user.BookingID,&user.UserId, &user.CustomerName, &user.ContactNo, &user.Date, &user.SlotId, &user.TableId)
+        if err != nil {
+            log.Println(err)
+            continue
+        }
+        usersList = append(usersList, user)
+    }
 
-	return usersList, nil
+    if err := rows.Err(); err != nil {
+        return usersList, err
+    }
 
+    return usersList, nil
 }
+

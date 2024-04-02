@@ -12,6 +12,7 @@ type BookingDetails struct {
 	Date         string `json:"date"`
 	SlotId       int    `json:"slot_id"`
 	TableId      int    `json:"table_id"`
+	UserId       int    `json:"user_id"`
 }
 
 type SlotResponse struct {
